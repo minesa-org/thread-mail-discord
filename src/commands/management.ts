@@ -130,7 +130,7 @@ const managementCommands: MiniInteractionCommand = {
 						)
 						.addComponent(
 							new TextDisplayBuilder().setContent(
-								`-# <@&${roleId}>\nSet as the role to mention when new ticket threads are created.\n\n**Default Channel:** System Channel (${systemChannelInfo})\n-# Threads are created in the server's system channel by default.`,
+								`-# <@&${roleId}>\nSet as the role to mention when new ticket threads are created.\n-# Threads are created in the server's system channel by default if custom channel is not set.`,
 							),
 						)
 						.toJSON();
@@ -151,7 +151,7 @@ const managementCommands: MiniInteractionCommand = {
 							)
 							.addComponent(
 								new TextDisplayBuilder().setContent(
-									`Current ping role: <@&${guildData.pingRoleId}>\n\n-# Use \`/manage staff set\` to change role.`,
+									`- <@&${guildData.pingRoleId}>\n\n-# When tickets are created, this role will be pinged. Use \`/manage staff clear\` to reset to \`@here\`.`,
 								),
 							)
 							.toJSON();
@@ -389,7 +389,7 @@ const managementCommands: MiniInteractionCommand = {
 							)
 							.addComponent(
 								new TextDisplayBuilder().setContent(
-									`Custom channel: <#${customChannelId}>\n\n-# Tickets are created in the custom channel. Use \`/manage channel clear\` to reset to system channel.`,
+									`- <#${customChannelId}>\n\n-# Tickets are created in the custom channel. Use \`/manage channel clear\` to reset to system channel.`,
 								),
 							)
 							.toJSON();
