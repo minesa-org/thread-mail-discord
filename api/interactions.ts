@@ -13,7 +13,7 @@ await mini.registerMetadata(process.env.DISCORD_BOT_TOKEN!, [
 		key: "threads_created",
 		name: "Threads created",
 		description: "The amount of threadmail user has created",
-		type: RoleConnectionMetadataTypes.BooleanEqual,
+		type: RoleConnectionMetadataTypes.IntegerGreaterThanOrEqual,
 	},
 ]);
 
