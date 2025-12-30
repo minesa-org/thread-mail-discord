@@ -72,9 +72,20 @@ export const createMenuHandler: MiniInteractionComponent = {
 				process.env.DISCORD_BOT_TOKEN!,
 				true,
 			);
-			const systemChannelId = guild.system_channel_id;
 
-			if (!systemChannelId) {
+			// Get guild data to check for custom ticket channel
+			let ticketChannelId;
+			try {
+				const guildData = await db.get(`guild:${guildId}`);
+				ticketChannelId = guildData?.ticketChannelId;
+			} catch (dbError) {
+				console.error("Error fetching guild data:", dbError);
+			}
+
+			// Use custom channel if set, otherwise fall back to system channel
+			const targetChannelId = ticketChannelId || guild.system_channel_id;
+
+			if (!targetChannelId) {
 				return interaction.reply({
 					content:
 						"<:Oops:1455132060044759092> This server does not have a system channel configured. Please create a thread manually or tell the server owner to configure a system channel.\n\n-# You may want to forward this message to the server owner to configure a system channel.",
@@ -82,7 +93,7 @@ export const createMenuHandler: MiniInteractionComponent = {
 			}
 
 			const thread = await fetch(
-				`https://discord.com/api/v10/channels/${systemChannelId}/threads`,
+				`https://discord.com/api/v10/channels/${targetChannelId}/threads`,
 				{
 					method: "POST",
 					headers: {
@@ -149,7 +160,7 @@ export const createMenuHandler: MiniInteractionComponent = {
 			let webhookUrl = null;
 			try {
 				const webhooks = await fetchDiscord(
-					`/channels/${systemChannelId}/webhooks`,
+					`/channels/${targetChannelId}/webhooks`,
 					process.env.DISCORD_BOT_TOKEN!,
 					true,
 				);
@@ -159,7 +170,7 @@ export const createMenuHandler: MiniInteractionComponent = {
 
 				if (!existingWebhook) {
 					const webhookResponse = await fetch(
-						`https://discord.com/api/v10/channels/${systemChannelId}/webhooks`,
+						`https://discord.com/api/v10/channels/${targetChannelId}/webhooks`,
 						{
 							method: "POST",
 							headers: {

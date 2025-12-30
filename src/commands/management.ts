@@ -337,7 +337,7 @@ const managementCommands: MiniInteractionCommand = {
 					const container = new ContainerBuilder()
 						.addComponent(
 							new TextDisplayBuilder().setContent(
-								"## <:seal:1455132090906710057> Custom Channel Set",
+								"## <:thread_create:1455132063077371952> Custom Channel Set",
 							),
 						)
 						.addComponent(
@@ -372,7 +372,7 @@ const managementCommands: MiniInteractionCommand = {
 						const container = new ContainerBuilder()
 							.addComponent(
 								new TextDisplayBuilder().setContent(
-									"## <:seal:1455132090906710057> Current Ticket Channel",
+									"## <:thread_create:1455132063077371952> Current Ticket Channel",
 								),
 							)
 							.addComponent(
@@ -394,7 +394,7 @@ const managementCommands: MiniInteractionCommand = {
 						const container = new ContainerBuilder()
 							.addComponent(
 								new TextDisplayBuilder().setContent(
-									"## <:seal:1455132090906710057> Default Ticket Channel",
+									"## <:thread_create:1455132063077371952> Default Ticket Channel",
 								),
 							)
 							.addComponent(
@@ -445,7 +445,7 @@ const managementCommands: MiniInteractionCommand = {
 						const container = new ContainerBuilder()
 							.addComponent(
 								new TextDisplayBuilder().setContent(
-									"## <:seal:1455132090906710057> Custom Channel Cleared",
+									"## <:thread_create:1455132063077371952> Custom Channel Cleared",
 								),
 							)
 							.addComponent(
