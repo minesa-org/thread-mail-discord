@@ -11,7 +11,7 @@ export const mini = new MiniInteraction({
 await mini.registerMetadata(process.env.DISCORD_BOT_TOKEN!, [
 	{
 		key: "threads_created",
-		name: "Threads created",
+		name: "Threads Created",
 		description:
 			"The amount of threadmail user has created (require user authorization)",
 		type: RoleConnectionMetadataTypes.IntegerGreaterThanOrEqual,
