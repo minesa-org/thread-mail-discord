@@ -40,12 +40,16 @@ const closeCommand: MiniInteractionCommand = {
 			const now = Date.now();
 			const cooldownDuration = 30 * 60 * 1000; // 30 minutes in milliseconds
 
-			if (cooldownData && cooldownData.expiresAt > now) {
-				const remainingTime = Math.ceil((cooldownData.expiresAt - now) / 1000);
-				const timestamp = Math.floor(cooldownData.expiresAt / 1000);
+			if (cooldownData && (cooldownData as any).expiresAt > now) {
+				const remainingTime = Math.ceil(
+					((cooldownData as any).expiresAt - now) / 1000,
+				);
+				const timestamp = Math.floor(
+					(cooldownData as any).expiresAt / 1000,
+				);
 
 				return interaction.reply({
-					content: `<:Oops:1455132060044759092> **You're on cooldown!**\n\nYou closed a ticket too quickly. Please wait before closing another ticket.\n\n⏰ **Time remaining:** <t:${timestamp}:R>`,
+					content: `<:Oops:1455132060044759092> **You're on cooldown!**\n\nYou closed a ticket too quickly. Please wait before closing another ticket.\n\n-# <:timeout:1455604328835449109> **Time remaining:** <t:${timestamp}:R>`,
 					flags: [InteractionReplyFlags.Ephemeral],
 				});
 			}
@@ -80,10 +84,10 @@ const closeCommand: MiniInteractionCommand = {
 					flags: [InteractionReplyFlags.Ephemeral],
 				});
 
-				// Warn user about cooldown policy
+				// Warn user about cooldown policy via DM
 				try {
-					await fetch(
-						`https://discord.com/api/v10/channels/${ticketData.threadId}/messages`,
+					const dmResponse = await fetch(
+						`https://discord.com/api/v10/users/@me/channels`,
 						{
 							method: "POST",
 							headers: {
@@ -91,12 +95,32 @@ const closeCommand: MiniInteractionCommand = {
 								"Content-Type": "application/json",
 							},
 							body: JSON.stringify({
-								content: `⚠️ **Warning:** Closing tickets too quickly will put you on a 30-minute cooldown before you can close another ticket.`,
+								recipient_id: ticketData.userId,
 							}),
 						},
 					);
+
+					if (dmResponse.ok) {
+						const dmChannel = await dmResponse.json();
+						await fetch(
+							`https://discord.com/api/v10/channels/${dmChannel.id}/messages`,
+							{
+								method: "POST",
+								headers: {
+									Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify({
+									content: `-# **Warning:** Closing tickets too quickly will put you on a <:timeout:1455604328835449109> 30-minute cooldown before you can close another ticket.`,
+								}),
+							},
+						);
+					}
 				} catch (warnError) {
-					console.error("Error sending cooldown warning:", warnError);
+					console.error(
+						"Error sending cooldown warning DM:",
+						warnError,
+					);
 				}
 				try {
 					await fetch(
