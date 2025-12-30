@@ -281,12 +281,13 @@ const closeCommand: MiniInteractionCommand = {
 				throw new Error(`Failed to archive thread: ${response.status}`);
 			}
 
-			const userData = await db.get(String(ticketData.userId));
+			const userKey = `user:${ticketData.userId}`;
+			const userData = await db.get(userKey);
 			if (userData) {
 				const updatedUserData = { ...userData, activeTicketId: null };
 				delete (updatedUserData as any).createdAt;
 				delete (updatedUserData as any).updatedAt;
-				await db.set(String(ticketData.userId), updatedUserData);
+				await db.set(userKey, updatedUserData);
 			}
 
 			if (!response.ok) {

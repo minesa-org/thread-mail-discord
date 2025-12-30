@@ -214,7 +214,9 @@ export const createMenuHandler: MiniInteractionComponent = {
 					ticketId,
 				});
 
+				const existingUserData = await db.get(`user:${user.id}`);
 				await db.set(`user:${user.id}`, {
+					...existingUserData,
 					activeTicketId: ticketId,
 					guildId,
 				});

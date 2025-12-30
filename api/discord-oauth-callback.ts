@@ -67,6 +67,24 @@ export default mini.discordOAuthCallback({
 			});
 
 			// Initialize Linked Roles metadata
+			let currentCount = 0;
+			try {
+				const metadataResponse = await fetch(
+					`https://discord.com/api/v10/users/@me/applications/${process.env.DISCORD_APPLICATION_ID}/role-connection`,
+					{
+						headers: {
+							Authorization: `Bearer ${tokens.access_token}`,
+						},
+					},
+				);
+				if (metadataResponse.ok) {
+					const metadata = await metadataResponse.json();
+					currentCount = metadata.metadata?.threads_created || 0;
+				}
+			} catch (fetchError) {
+				console.error("Error fetching current metadata:", fetchError);
+			}
+
 			await fetch(
 				`https://discord.com/api/v10/users/@me/applications/${process.env.DISCORD_APPLICATION_ID}/role-connection`,
 				{
@@ -78,7 +96,7 @@ export default mini.discordOAuthCallback({
 					body: JSON.stringify({
 						platform_name: "ThreadMail",
 						metadata: {
-							threads_created: 0, // Initialize with 0, will be updated when they create threads
+							threads_created: currentCount,
 						},
 					}),
 				},
