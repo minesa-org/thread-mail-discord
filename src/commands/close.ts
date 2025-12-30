@@ -38,12 +38,8 @@ const closeCommand: MiniInteractionCommand = {
 		try {
 			const cooldownData = await db.get(cooldownKey);
 			const now = Date.now();
-			const cooldownDuration = 30 * 60 * 1000; // 30 minutes in milliseconds
 
 			if (cooldownData && (cooldownData as any).expiresAt > now) {
-				const remainingTime = Math.ceil(
-					((cooldownData as any).expiresAt - now) / 1000,
-				);
 				const timestamp = Math.floor(
 					(cooldownData as any).expiresAt / 1000,
 				);
