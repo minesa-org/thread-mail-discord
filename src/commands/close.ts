@@ -226,7 +226,7 @@ const closeCommand: MiniInteractionCommand = {
 			if (dmResponse.ok) {
 				const dmChannel = await dmResponse.json();
 
-				const messageResponse = await fetch(
+				await fetch(
 					`https://discord.com/api/v10/channels/${dmChannel.id}/messages`,
 					{
 						method: "POST",
