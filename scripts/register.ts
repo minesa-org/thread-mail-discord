@@ -1,9 +1,18 @@
-import { MiniInteraction } from "@minesa-org/mini-interaction";
+import "dotenv/config";
+import { mini } from "../api/interactions.js";
 
-const mini = new MiniInteraction({
-	applicationId: process.env.DISCORD_APPLICATION_ID!,
-	publicKey: process.env.DISCORD_APP_PUBLIC_KEY!,
-});
-
-await mini.registerCommands(process.env.DISCORD_BOT_TOKEN!);
-console.log("Registration complete!");
+try {
+	await mini.registerCommands(process.env.DISCORD_BOT_TOKEN!);
+	console.log("Registration complete!");
+} catch (error) {
+	if (
+		error.message?.includes("rate limited") ||
+		error.message?.includes("429")
+	) {
+		console.log(
+			"Rate limited during registration, skipping (commands likely already registered)",
+		);
+	} else {
+		throw error;
+	}
+}
