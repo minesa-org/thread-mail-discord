@@ -1,21 +1,34 @@
 {
-	"name": "@minesa-org/assistant",
+	"name": "@neodevils/thread-mail-discord",
 	"version": "1.0.0",
-	"description": "Mini-Interaction <3",
-	"main": "index.js",
+	"description": "A Discord bot for seamless ticket creation and management through private threads",
+	"main": "api/index.ts",
 	"scripts": {
-		"mi-latest": "npm i @minesa-org/mini-interaction@latest",
 		"build": "tsx scripts/register.ts",
+		"mi-latest": "npm i @minesa-org/mini-interaction@latest",
 		"production": "vercel --prod"
 	},
 	"keywords": [
 		"discord",
-		"app",
-		"template",
-		"http-interaction"
+		"discord-bot",
+		"bot",
+		"tickets",
+		"support",
+		"threads",
+		"thread-mail",
+		"mini-interaction",
+		"mongodb"
 	],
 	"author": "Neodevils",
-	"license": "",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/neodevils/thread-mail-discord.git"
+	},
+	"homepage": "https://github.com/neodevils/thread-mail-discord#readme",
+	"bugs": {
+		"url": "https://github.com/neodevils/thread-mail-discord/issues"
+	},
 	"type": "module",
 	"devDependencies": {
 		"@types/node": "^22.8.1",
