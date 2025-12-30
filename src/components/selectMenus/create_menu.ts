@@ -218,6 +218,64 @@ export const createMenuHandler: MiniInteractionComponent = {
 					activeTicketId: ticketId,
 					guildId,
 				});
+
+				// Update Linked Roles metadata for thread creation count
+				try {
+					const userData = await db.get(user.id);
+					if (userData && userData.accessToken) {
+						// Get current thread count from metadata or initialize to 0
+						let currentCount = 0;
+						try {
+							const metadataResponse = await fetch(
+								`https://discord.com/api/v10/users/@me/applications/${process.env.DISCORD_APPLICATION_ID}/role-connection`,
+								{
+									headers: {
+										Authorization: `Bearer ${userData.accessToken}`,
+									},
+								},
+							);
+							if (metadataResponse.ok) {
+								const metadata = await metadataResponse.json();
+								currentCount =
+									metadata.metadata?.threads_created || 0;
+							}
+						} catch (fetchError) {
+							console.error(
+								"Error fetching current metadata:",
+								fetchError,
+							);
+							// Continue with 0 if we can't fetch
+						}
+
+						// Update with incremented count
+						const newCount = currentCount + 1;
+						await fetch(
+							`https://discord.com/api/v10/users/@me/applications/${process.env.DISCORD_APPLICATION_ID}/role-connection`,
+							{
+								method: "PUT",
+								headers: {
+									Authorization: `Bearer ${userData.accessToken}`,
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify({
+									platform_name: "ThreadMail",
+									metadata: {
+										threads_created: newCount,
+									},
+								}),
+							},
+						);
+						console.log(
+							`✅ Updated Linked Roles for ${user.username}: ${newCount} threads created`,
+						);
+					}
+				} catch (metadataError) {
+					console.error(
+						"Error updating Linked Roles metadata:",
+						metadataError,
+					);
+					// Don't fail ticket creation if metadata update fails
+				}
 			} catch (dbError) {
 				console.error("Database save error:", dbError);
 				try {

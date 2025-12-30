@@ -9,8 +9,8 @@ const rawDatabase = MiniDatabase.fromEnv();
 const database = new Proxy(rawDatabase, {
 	get(target, prop) {
 		const originalMethod = target[prop as keyof typeof target];
-		if (typeof originalMethod === 'function') {
-			return (...args: any[]) => {
+		if (typeof originalMethod === "function") {
+			const wrappedMethod = async (...args: any[]) => {
 				// Temporarily suppress console methods during database operations
 				const originalLog = console.log;
 				const originalInfo = console.info;
@@ -18,14 +18,17 @@ const database = new Proxy(rawDatabase, {
 				console.info = () => {}; // Suppress info logs
 
 				try {
+					// @ts-expect-error - TypeScript proxy inference issue
 					const result = originalMethod.apply(target, args);
 					// Handle both sync and async results
-					if (result && typeof result.then === 'function') {
-						return result.finally(() => {
+					if (result && typeof result.then === "function") {
+						try {
+							return await result;
+						} finally {
 							// Restore console methods
 							console.log = originalLog;
 							console.info = originalInfo;
-						});
+						}
 					} else {
 						// Restore console methods for sync operations
 						console.log = originalLog;
@@ -39,9 +42,10 @@ const database = new Proxy(rawDatabase, {
 					throw error;
 				}
 			};
+			return wrappedMethod.bind(target);
 		}
 		return originalMethod;
-	}
+	},
 });
 const failedPage = mini.failedOAuthPage("public/pages/failed.html");
 
@@ -62,7 +66,23 @@ export default mini.discordOAuthCallback({
 				scope: tokens.scope,
 			});
 
-			await updateDiscordMetadata(user.id, tokens.access_token);
+			// Initialize Linked Roles metadata
+			await fetch(
+				`https://discord.com/api/v10/users/@me/applications/${process.env.DISCORD_APPLICATION_ID}/role-connection`,
+				{
+					method: "PUT",
+					headers: {
+						Authorization: `Bearer ${tokens.access_token}`,
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						platform_name: "ThreadMail",
+						metadata: {
+							threads_created: 0, // Initialize with 0, will be updated when they create threads
+						},
+					}),
+				},
+			);
 		} catch (error) {
 			console.error("OAuth callback error:", error);
 			throw error;
