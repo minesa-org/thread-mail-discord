@@ -282,7 +282,29 @@ const managementCommands: MiniInteractionCommand = {
 					}
 
 					try {
-						await fetch(
+						// First check if bot can view the channel
+						const channelInfo = await fetch(
+							`https://discord.com/api/v10/channels/${channelId}`,
+							{
+								headers: {
+									Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+								},
+							},
+						);
+
+						if (!channelInfo.ok) {
+							if (channelInfo.status === 403) {
+								throw new Error(
+									"403: Bot lacks permission to view this channel. Required permission: View Channel",
+								);
+							}
+							throw new Error(
+								`Failed to access channel: ${channelInfo.status}`,
+							);
+						}
+
+						// Then test sending a message
+						const messageResponse = await fetch(
 							`https://discord.com/api/v10/channels/${channelId}/messages`,
 							{
 								method: "POST",
@@ -295,28 +317,40 @@ const managementCommands: MiniInteractionCommand = {
 										"**Permission Test:** This message will be deleted automatically.",
 								}),
 							},
-						).then(async (response) => {
-							if (!response.ok) {
-								if (response.status === 403) {
-									throw new Error(
-										"403: Bot lacks permission to send messages in this channel. Required permissions: View Channel, Send Messages",
-									);
-								}
+						);
+
+						if (!messageResponse.ok) {
+							if (messageResponse.status === 403) {
 								throw new Error(
-									`Failed to send test message: ${response.status}`,
+									"403: Bot lacks permission to send messages in this channel. Required permissions: View Channel, Send Messages",
 								);
 							}
-							const messageData = await response.json();
-							await fetch(
-								`https://discord.com/api/v10/channels/${channelId}/messages/${messageData.id}`,
-								{
-									method: "DELETE",
-									headers: {
-										Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
-									},
-								},
+							throw new Error(
+								`Failed to send test message: ${messageResponse.status}`,
 							);
-						});
+						}
+
+						const messageData = await messageResponse.json();
+
+						// Test deleting the message
+						const deleteResponse = await fetch(
+							`https://discord.com/api/v10/channels/${channelId}/messages/${messageData.id}`,
+							{
+								method: "DELETE",
+								headers: {
+									Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+								},
+							},
+						);
+
+						if (
+							!deleteResponse.ok &&
+							deleteResponse.status === 403
+						) {
+							throw new Error(
+								"403: Bot lacks permission to manage messages in this channel. Required permission: Manage Messages",
+							);
+						}
 					} catch (permError: any) {
 						return interaction.reply({
 							content: `<:Oops:1455132060044759092> **Permission Error:**\n\n${permError.message}\n\nPlease ensure the bot has the required permissions in <#${channelId}>.`,
