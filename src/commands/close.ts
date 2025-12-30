@@ -54,6 +54,10 @@ const closeCommand: MiniInteractionCommand = {
 						flags: [InteractionReplyFlags.Ephemeral],
 					});
 				}
+
+				await interaction.deferReply({
+					flags: [InteractionReplyFlags.Ephemeral],
+				});
 				try {
 					await fetch(
 						`https://discord.com/api/v10/channels/${ticketData.threadId}/messages`,
@@ -64,7 +68,7 @@ const closeCommand: MiniInteractionCommand = {
 								"Content-Type": "application/json",
 							},
 							body: JSON.stringify({
-								content: `## <:thread_archive_user:1453370242381254687> Ticket Closed\n\n**User:** ${ticketData.username}\n**Status:** Closed by user\n\n-# This ticket has been closed by the user.`,
+								content: `## <:thread_archive_server:1455132087496741000> Ticket Closed\n\n**User:** ${ticketData.username}\n**Status:** Closed by user\n\n-# This ticket has been closed by the user.`,
 							}),
 						},
 					);
@@ -109,7 +113,7 @@ const closeCommand: MiniInteractionCommand = {
 					console.error("Error deleting ticket data:", deleteError);
 				}
 
-				return interaction.reply({
+				return interaction.followUp({
 					content: `## <:thread_archive_server:1455132087496741000> **Your ticket has been closed!**\n\nIf you need further assistance, you can create a new ticket anytime using </create:1453302198086664249> command.`,
 				});
 			} catch (error) {
@@ -147,6 +151,10 @@ const closeCommand: MiniInteractionCommand = {
 					flags: [InteractionReplyFlags.Ephemeral],
 				});
 			}
+
+			await interaction.deferReply({
+				flags: [InteractionReplyFlags.Ephemeral],
+			});
 			try {
 				await fetch(
 					`https://discord.com/api/v10/channels/${channel.id}/messages`,
@@ -168,9 +176,8 @@ const closeCommand: MiniInteractionCommand = {
 				);
 			}
 
-			await interaction.reply({
+			interaction.followUp({
 				content: `<:thread_archive_server:1455132087496741000> **Archived the ticket.**`,
-				flags: [InteractionReplyFlags.Ephemeral],
 			});
 
 			const response = await fetch(
