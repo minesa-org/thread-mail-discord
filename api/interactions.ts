@@ -8,14 +8,4 @@ export const mini = new MiniInteraction({
 	publicKey: process.env.DISCORD_APP_PUBLIC_KEY!,
 });
 
-await mini.registerMetadata(process.env.DISCORD_BOT_TOKEN!, [
-	{
-		key: "threads_created",
-		name: "Threads Created",
-		description:
-			"The amount of threadmail user has created (require user authorization)",
-		type: RoleConnectionMetadataTypes.IntegerGreaterThanOrEqual,
-	},
-]);
-
 export default mini.createNodeHandler();

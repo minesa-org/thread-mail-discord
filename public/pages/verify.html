@@ -10,7 +10,7 @@
 	</head>
 	<body
 		style="
-			background: url('https://media.discordapp.net/attachments/736571695170584576/1226985772033249372/background.png?format=webp&quality=lossless&width=940&height=740')
+			background: url('https://images-ext-1.discordapp.net/external/WMPe6oOL06qWHdDUVzwsgpQ96AXtn2yhCsMoBnggk_8/https/discord.com/assets/1243734d7e2a4654.png?format=webp&quality=lossless&width=940&height=740')
 				top left repeat;
 			background-color: rgb(49, 48, 48);
 			color: #cbcbcb;
@@ -95,17 +95,24 @@
 		</div>
 
 		<script>
+			// Added logging to help identify why a redirect might fail
 			const oauthUrl = "{{OAUTH_URL_RAW}}";
 			const isPlaceholder =
 				typeof oauthUrl !== "string" ||
 				!oauthUrl.length ||
 				oauthUrl.includes("{{");
 
+			console.log("[LinkedRoles] OAuth URL available:", !isPlaceholder);
+
 			if (!isPlaceholder) {
+				console.log("[LinkedRoles] Redirecting to:", oauthUrl);
 				window.location.replace(oauthUrl);
 			} else {
+				console.error(
+					"[LinkedRoles] OAuth URL is a placeholder, redirect aborted.",
+				);
 				document.querySelector("div:nth-of-type(2)").innerHTML =
-					"<strong>ERROR</strong>";
+					"<strong>ERROR: Redirect failed</strong>";
 			}
 		</script>
 	</body>
