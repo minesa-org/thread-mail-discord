@@ -35,7 +35,7 @@ const closeCommand: MiniInteractionCommand = {
 
 		if (isDM) {
 			try {
-				const userData = await db.get(`user:${user.id}`);
+				const userData = await db.get(user.id);
 				if (!userData || !userData.activeTicketId) {
 					return interaction.reply({
 						content:
@@ -204,12 +204,12 @@ const closeCommand: MiniInteractionCommand = {
 				throw new Error(`Failed to archive thread: ${response.status}`);
 			}
 
-			const userData = await db.get(`user:${ticketData.userId}`);
+			const userData = await db.get(ticketData.userId);
 			if (userData) {
 				const updatedUserData = { ...userData, activeTicketId: null };
 				delete (updatedUserData as any).createdAt;
 				delete (updatedUserData as any).updatedAt;
-				await db.set(`user:${ticketData.userId}`, updatedUserData);
+				await db.set(ticketData.userId, updatedUserData);
 			}
 
 			if (!response.ok) {

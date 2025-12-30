@@ -51,7 +51,7 @@ const sendCommand: MiniInteractionCommand = {
 			if (isDM) {
 				let userData;
 				try {
-					userData = await db.get(`user:${user.id}`);
+					userData = await db.get(user.id);
 				} catch (dbError) {
 					console.error("Database error getting user data:", dbError);
 					userData = null; // Treat as unauthorized if database fails
