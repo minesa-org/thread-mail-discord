@@ -24,6 +24,7 @@
 	},
 	"dependencies": {
 		"@minesa-org/mini-interaction": "^0.1.9",
+		"dotenv": "^17.2.3",
 		"mongodb": "^7.0.0"
 	}
 }
