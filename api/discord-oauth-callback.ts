@@ -14,13 +14,24 @@ export default mini.discordOAuthCallback({
 		serverError: failedPage,
 	},
 	async onAuthorize({ user, tokens }: { user: any; tokens: any }) {
-		await database.set(user.id, {
-			accessToken: tokens.access_token,
-			refreshToken: tokens.refresh_token,
-			expiresAt: tokens.expires_at,
-			scope: tokens.scope,
-		});
+		try {
+			console.log("OAuth callback - User ID:", user.id);
 
-		await updateDiscordMetadata(user.id, tokens.access_token);
+			await database.set(user.id, {
+				accessToken: tokens.access_token,
+				refreshToken: tokens.refresh_token,
+				expiresAt: tokens.expires_at,
+				scope: tokens.scope,
+			});
+
+			console.log("Database write successful");
+
+			await updateDiscordMetadata(user.id, tokens.access_token);
+
+			console.log("Metadata update successful");
+		} catch (error) {
+			console.error("OAuth callback error:", error);
+			throw error;
+		}
 	},
 });

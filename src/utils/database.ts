@@ -1,17 +1,7 @@
 import { MiniDatabase } from "@minesa-org/mini-interaction";
 
-/**
- * Shared database instance for the application.
- * Automatically configured from environment variables:
- * - MONGODB_URI: MongoDB connection string
- * - MONGO_DB_NAME: Database name (default: "assistant")
- * - MONGO_COLLECTION_NAME: Collection name (default: "users")
- */
 export const db = MiniDatabase.fromEnv();
 
-/**
- * Gets user data from the database.
- */
 export async function getUserData(userId: string) {
 	try {
 		return await db.get(userId);
@@ -25,16 +15,11 @@ export async function getUserData(userId: string) {
 	}
 }
 
-/**
- * Sets user's is_assistant status in the database.
- */
 export async function setUserAssistantStatus(
 	userId: string,
 	isAssistant: boolean,
 ) {
 	try {
-		// Always use set() to avoid MongoDB createdAt/updatedAt conflict
-		// The package automatically handles timestamps
 		return await db.set(userId, {
 			userId,
 			is_assistant: isAssistant,
@@ -50,10 +35,6 @@ export async function setUserAssistantStatus(
 	}
 }
 
-/**
- * Updates user metadata for Discord linked roles.
- * This function pushes the metadata to Discord's API.
- */
 export async function updateDiscordMetadata(
 	userId: string,
 	accessToken: string,
