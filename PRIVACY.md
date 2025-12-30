@@ -12,7 +12,6 @@ This Privacy Policy explains how ThreadMail ("we", "us", or "our") collects, use
 When you authorize the Bot, we receive the following information from Discord:
 - Discord User ID
 - Username and discriminator
-- Email address (if granted permission)
 - Guild/Server membership information
 - OAuth2 access and refresh tokens
 
