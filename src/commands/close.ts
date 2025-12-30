@@ -64,7 +64,7 @@ const closeCommand: MiniInteractionCommand = {
 								"Content-Type": "application/json",
 							},
 							body: JSON.stringify({
-								content: `## <:thread_archive_user:1453370242381254687> Ticket Closed\n\n**User:** ${ticketData.username}\n**Status:** Closed by user\n\n-# This ticket has been closed by the user.`,
+								content: `## <:thread_archive_server:1455132087496741000> Ticket Closed\n\n**User:** ${ticketData.username}\n**Status:** Closed by user\n\n-# This ticket has been closed by the user.`,
 							}),
 						},
 					);
