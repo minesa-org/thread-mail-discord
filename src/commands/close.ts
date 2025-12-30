@@ -33,6 +33,27 @@ const closeCommand: MiniInteractionCommand = {
 			});
 		}
 
+		// Check for close cooldown (30 minutes)
+		const cooldownKey = `cooldown:close:${user.id}`;
+		try {
+			const cooldownData = await db.get(cooldownKey);
+			const now = Date.now();
+			const cooldownDuration = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+			if (cooldownData && cooldownData.expiresAt > now) {
+				const remainingTime = Math.ceil((cooldownData.expiresAt - now) / 1000);
+				const timestamp = Math.floor(cooldownData.expiresAt / 1000);
+
+				return interaction.reply({
+					content: `<:Oops:1455132060044759092> **You're on cooldown!**\n\nYou closed a ticket too quickly. Please wait before closing another ticket.\n\n⏰ **Time remaining:** <t:${timestamp}:R>`,
+					flags: [InteractionReplyFlags.Ephemeral],
+				});
+			}
+		} catch (cooldownError) {
+			console.error("Error checking cooldown:", cooldownError);
+			// Continue with close operation if cooldown check fails
+		}
+
 		if (isDM) {
 			try {
 				const userTicketData = await db.get(`user:${user.id}`);
@@ -58,6 +79,25 @@ const closeCommand: MiniInteractionCommand = {
 				await interaction.deferReply({
 					flags: [InteractionReplyFlags.Ephemeral],
 				});
+
+				// Warn user about cooldown policy
+				try {
+					await fetch(
+						`https://discord.com/api/v10/channels/${ticketData.threadId}/messages`,
+						{
+							method: "POST",
+							headers: {
+								Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								content: `⚠️ **Warning:** Closing tickets too quickly will put you on a 30-minute cooldown before you can close another ticket.`,
+							}),
+						},
+					);
+				} catch (warnError) {
+					console.error("Error sending cooldown warning:", warnError);
+				}
 				try {
 					await fetch(
 						`https://discord.com/api/v10/channels/${ticketData.threadId}/messages`,
@@ -109,6 +149,20 @@ const closeCommand: MiniInteractionCommand = {
 				delete (updatedUserData as any).createdAt;
 				delete (updatedUserData as any).updatedAt;
 				await db.set(`user:${user.id}`, updatedUserData);
+
+				// Set cooldown after successful ticket closure
+				try {
+					const cooldownDuration = 30 * 60 * 1000; // 30 minutes
+					await db.set(`cooldown:close:${user.id}`, {
+						userId: user.id,
+						expiresAt: Date.now() + cooldownDuration,
+						reason: "ticket_close_cooldown",
+					});
+				} catch (cooldownError) {
+					console.error("Error setting cooldown:", cooldownError);
+					// Don't fail the close operation if cooldown setting fails
+				}
+
 				try {
 					await db.delete(`ticket:${userTicketData.activeTicketId}`);
 					await db.delete(`thread:${ticketData.threadId}`);
