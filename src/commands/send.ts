@@ -1,4 +1,7 @@
 import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
 	CommandBuilder,
 	CommandContext,
 	ContainerBuilder,
@@ -7,6 +10,7 @@ import {
 	MiniPermFlags,
 	TextDisplayBuilder,
 	type CommandInteraction,
+	type MiniComponentMessageActionRow,
 	type MiniInteractionCommand,
 } from "@minesa-org/mini-interaction";
 import { db } from "../utils/database.ts";
@@ -45,9 +49,52 @@ const sendCommand: MiniInteractionCommand = {
 			const isDM = !guild;
 
 			if (isDM) {
-				const userData = await db.get(`user:${user.id}`);
+				let userData;
+				try {
+					userData = await db.get(`user:${user.id}`);
+				} catch (dbError) {
+					console.error("Database error getting user data:", dbError);
+					userData = null; // Treat as unauthorized if database fails
+				}
 
-				if (!userData || !userData.activeTicketId) {
+				if (!userData || !userData.accessToken) {
+					const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${
+						process.env.DISCORD_APPLICATION_ID
+					}&response_type=code&redirect_uri=${encodeURIComponent(
+						process.env.DISCORD_REDIRECT_URI!,
+					)}&scope=applications.commands+identify+guilds+role_connections.write&integration_type=1`;
+
+					const button =
+						new ActionRowBuilder<MiniComponentMessageActionRow>()
+							.addComponents(
+								new ButtonBuilder()
+									.setLabel("Authorize App")
+									.setStyle(ButtonStyle.Link)
+									.setURL(oauthUrl),
+							)
+							.toJSON();
+
+					return interaction.reply({
+						components: [
+							new ContainerBuilder()
+								.addComponent(
+									new TextDisplayBuilder().setContent(
+										"## <:sharedwithu:1455132088926863412> Authorization Required",
+									),
+								)
+								.addComponent(
+									new TextDisplayBuilder().setContent(
+										"You have not authorized your account with the app. Click the button below to authorize.",
+									),
+								)
+								.addComponent(button)
+								.toJSON(),
+						],
+						flags: [InteractionReplyFlags.IsComponentsV2],
+					});
+				}
+
+				if (!userData.activeTicketId) {
 					return interaction.reply({
 						content:
 							"<:Oops:1455132060044759092> You don't have an active ticket. Use </create:1453302198086664249> command in a server first.",

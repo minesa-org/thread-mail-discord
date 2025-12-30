@@ -94,7 +94,7 @@ const createCommand: MiniInteractionCommand = {
 				process.env.DISCORD_APPLICATION_ID
 			}&response_type=code&redirect_uri=${encodeURIComponent(
 				process.env.DISCORD_REDIRECT_URI!,
-			)}&scope=identify+guilds+role_connections.write`;
+			)}&scope=applications.commands+identify+guilds+role_connections.write&integration_type=1`;
 
 			const button = new ActionRowBuilder<MiniComponentMessageActionRow>()
 				.addComponents(
@@ -115,7 +115,7 @@ const createCommand: MiniInteractionCommand = {
 						)
 						.addComponent(
 							new TextDisplayBuilder().setContent(
-								"You have not authorized your account with the app. Use `/authorize-account` command to authorize.",
+								"You have not authorized your account with the app. Click the button below to authorize.",
 							),
 						)
 						.addComponent(button)
@@ -143,7 +143,7 @@ const createCommand: MiniInteractionCommand = {
 						process.env.DISCORD_APPLICATION_ID
 					}&response_type=code&redirect_uri=${encodeURIComponent(
 						process.env.DISCORD_REDIRECT_URI!,
-					)}&scope=identify+guilds+role_connections.write`;
+					)}&scope=applications.commands+identify+guilds+role_connections.write&integration_type=1`;
 
 					const button =
 						new ActionRowBuilder<MiniComponentMessageActionRow>()
@@ -165,7 +165,7 @@ const createCommand: MiniInteractionCommand = {
 								)
 								.addComponent(
 									new TextDisplayBuilder().setContent(
-										"Your authorization has expired. Use `/authorize-account` command to re-authorize.",
+										"Your authorization has expired. Click the button below to re-authorize.",
 									),
 								)
 								.addComponent(button)
