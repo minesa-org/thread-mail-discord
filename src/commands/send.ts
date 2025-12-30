@@ -94,7 +94,18 @@ const sendCommand: MiniInteractionCommand = {
 					});
 				}
 
-				if (!userData.activeTicketId) {
+				let userTicketData;
+				try {
+					userTicketData = await db.get(`user:${user.id}`);
+				} catch (dbError) {
+					console.error(
+						"Database error getting user ticket data:",
+						dbError,
+					);
+					userTicketData = null;
+				}
+
+				if (!userTicketData || !userTicketData.activeTicketId) {
 					return interaction.reply({
 						content:
 							"<:Oops:1455132060044759092> You don't have an active ticket. Use </create:1453302198086664249> command in a server first.",
@@ -102,7 +113,7 @@ const sendCommand: MiniInteractionCommand = {
 				}
 
 				const ticketData = await db.get(
-					`ticket:${userData.activeTicketId}`,
+					`ticket:${userTicketData.activeTicketId}`,
 				);
 
 				if (!ticketData || ticketData.status !== "open") {

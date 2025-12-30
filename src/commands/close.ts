@@ -35,8 +35,8 @@ const closeCommand: MiniInteractionCommand = {
 
 		if (isDM) {
 			try {
-				const userData = await db.get(user.id);
-				if (!userData || !userData.activeTicketId) {
+				const userTicketData = await db.get(`user:${user.id}`);
+				if (!userTicketData || !userTicketData.activeTicketId) {
 					return interaction.reply({
 						content:
 							"<:Oops:1455132060044759092> You don't have an active ticket to close.",
@@ -45,7 +45,7 @@ const closeCommand: MiniInteractionCommand = {
 				}
 
 				const ticketData = await db.get(
-					`ticket:${userData.activeTicketId}`,
+					`ticket:${userTicketData.activeTicketId}`,
 				);
 				if (!ticketData) {
 					return interaction.reply({
@@ -68,7 +68,7 @@ const closeCommand: MiniInteractionCommand = {
 								"Content-Type": "application/json",
 							},
 							body: JSON.stringify({
-								content: `## <:thread_archive_server:1455132087496741000> Ticket Closed\n\n**User:** ${ticketData.username}\n**Status:** Closed by user\n\n-# This ticket has been closed by the user.`,
+								content: `## <:thread_archive_server:1455132087496741000> Ticket Closed\n\n**User:** ${ticketData.username}\n\n-# This ticket has been closed by the user.`,
 							}),
 						},
 					);
@@ -102,12 +102,15 @@ const closeCommand: MiniInteractionCommand = {
 				} catch (archiveError) {
 					console.error("Error archiving thread:", archiveError);
 				}
-				const updatedUserData = { ...userData, activeTicketId: null };
+				const updatedUserData = {
+					...userTicketData,
+					activeTicketId: null,
+				};
 				delete (updatedUserData as any).createdAt;
 				delete (updatedUserData as any).updatedAt;
 				await db.set(`user:${user.id}`, updatedUserData);
 				try {
-					await db.delete(`ticket:${userData.activeTicketId}`);
+					await db.delete(`ticket:${userTicketData.activeTicketId}`);
 					await db.delete(`thread:${ticketData.threadId}`);
 				} catch (deleteError) {
 					console.error("Error deleting ticket data:", deleteError);
@@ -204,12 +207,12 @@ const closeCommand: MiniInteractionCommand = {
 				throw new Error(`Failed to archive thread: ${response.status}`);
 			}
 
-			const userData = await db.get(ticketData.userId);
+			const userData = await db.get(String(ticketData.userId));
 			if (userData) {
 				const updatedUserData = { ...userData, activeTicketId: null };
 				delete (updatedUserData as any).createdAt;
 				delete (updatedUserData as any).updatedAt;
-				await db.set(ticketData.userId, updatedUserData);
+				await db.set(String(ticketData.userId), updatedUserData);
 			}
 
 			if (!response.ok) {
