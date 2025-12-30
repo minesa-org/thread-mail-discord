@@ -1,6 +1,46 @@
 import { MiniDatabase } from "@minesa-org/mini-interaction";
 
-export const db = MiniDatabase.fromEnv();
+// Configure database with minimal logging
+const rawDb = MiniDatabase.fromEnv();
+
+// Wrapper to suppress database logging
+export const db = new Proxy(rawDb, {
+	get(target, prop) {
+		const originalMethod = target[prop as keyof typeof target];
+		if (typeof originalMethod === 'function') {
+			return (...args: any[]) => {
+				// Temporarily suppress console methods during database operations
+				const originalLog = console.log;
+				const originalInfo = console.info;
+				console.log = () => {}; // Suppress logs
+				console.info = () => {}; // Suppress info logs
+
+				try {
+					const result = originalMethod.apply(target, args);
+					// Handle both sync and async results
+					if (result && typeof result.then === 'function') {
+						return result.finally(() => {
+							// Restore console methods
+							console.log = originalLog;
+							console.info = originalInfo;
+						});
+					} else {
+						// Restore console methods for sync operations
+						console.log = originalLog;
+						console.info = originalInfo;
+						return result;
+					}
+				} catch (error) {
+					// Restore console methods on error
+					console.log = originalLog;
+					console.info = originalInfo;
+					throw error;
+				}
+			};
+		}
+		return originalMethod;
+	}
+});
 
 export async function getUserData(userId: string) {
 	try {

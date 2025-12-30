@@ -194,7 +194,8 @@ export const createMenuHandler: MiniInteractionComponent = {
 				await db.set(`guild:${guildId}`, {
 					guildId,
 					guildName: guild.name,
-					systemChannelId,
+					systemChannelId: guild.system_channel_id,
+					ticketChannelId,
 					webhookUrl,
 					status: "active",
 				});

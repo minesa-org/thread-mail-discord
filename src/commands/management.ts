@@ -1,4 +1,5 @@
 import {
+	ChannelType,
 	CommandBuilder,
 	CommandContext,
 	ContainerBuilder,
@@ -65,6 +66,7 @@ const managementCommands: MiniInteractionCommand = {
 								.setDescription(
 									"Select the channel for ticket creation",
 								)
+								.addChannelTypes(ChannelType.GuildText)
 								.setRequired(true),
 						),
 				)
@@ -290,7 +292,7 @@ const managementCommands: MiniInteractionCommand = {
 								},
 								body: JSON.stringify({
 									content:
-										"🧪 **Permission Test:** This message will be deleted automatically.",
+										"**Permission Test:** This message will be deleted automatically.",
 								}),
 							},
 						).then(async (response) => {
@@ -342,7 +344,7 @@ const managementCommands: MiniInteractionCommand = {
 						)
 						.addComponent(
 							new TextDisplayBuilder().setContent(
-								`-# <#${channelId}>\nSet as the channel for ticket creation.\n\n**Permission Test:** ✅ Bot can send messages in this channel.`,
+								`-# <#${channelId}>\nSet as the channel for ticket creation.\n\n**Permission Test:** Bot can send messages in this channel.`,
 							),
 						)
 						.toJSON();
