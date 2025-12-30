@@ -142,20 +142,6 @@ const managementCommands: MiniInteractionCommand = {
 				}
 
 				if (subcommand === "view") {
-					let systemChannelInfo = "Not set";
-					try {
-						const fullGuild = await fetchDiscord(
-							`/guilds/${guild!.id}`,
-							process.env.DISCORD_BOT_TOKEN!,
-							true,
-						);
-						if (fullGuild.system_channel_id) {
-							systemChannelInfo = `<#${fullGuild.system_channel_id}>`;
-						}
-					} catch (error) {
-						console.error("Error fetching guild info:", error);
-					}
-
 					if (guildData && guildData.pingRoleId) {
 						const container = new ContainerBuilder()
 							.addComponent(
@@ -165,13 +151,7 @@ const managementCommands: MiniInteractionCommand = {
 							)
 							.addComponent(
 								new TextDisplayBuilder().setContent(
-									`Current ping role: <@&${
-										guildData.pingRoleId
-									}>\n\n**Ticket Channel:** ${
-										guildData.ticketChannelId
-											? `<#${guildData.ticketChannelId}>`
-											: `System Channel (${systemChannelInfo})`
-									}\n\n-# Use \`/manage staff set\` to change role, \`/manage channel set\` to change channel.`,
+									`Current ping role: <@&${guildData.pingRoleId}>\n\n-# Use \`/manage staff set\` to change role.`,
 								),
 							)
 							.toJSON();
@@ -189,11 +169,7 @@ const managementCommands: MiniInteractionCommand = {
 							)
 							.addComponent(
 								new TextDisplayBuilder().setContent(
-									`No custom ping role is set for this server. New threads will ping @here.\n\n**Ticket Channel:** ${
-										guildData?.ticketChannelId
-											? `<#${guildData.ticketChannelId}>`
-											: `System Channel (${systemChannelInfo})`
-									}\n\n-# Use \`/manage staff set\` to set a role, \`/manage channel set\` to set a custom channel.`,
+									`No custom ping role is set for this server. New threads will ping @here.\n\n-# Use \`/manage staff set\` to set a role.`,
 								),
 							)
 							.toJSON();
@@ -413,11 +389,7 @@ const managementCommands: MiniInteractionCommand = {
 							)
 							.addComponent(
 								new TextDisplayBuilder().setContent(
-									`Custom channel: <#${customChannelId}>\nSystem channel: ${
-										systemChannelId
-											? `<#${systemChannelId}>`
-											: "Not set"
-									}\n\n-# Tickets are created in the custom channel. Use \`/manage channel clear\` to reset to system channel.`,
+									`Custom channel: <#${customChannelId}>\n\n-# Tickets are created in the custom channel. Use \`/manage channel clear\` to reset to system channel.`,
 								),
 							)
 							.toJSON();
