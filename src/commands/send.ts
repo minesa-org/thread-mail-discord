@@ -4,6 +4,7 @@ import {
 	ContainerBuilder,
 	IntegrationType,
 	InteractionReplyFlags,
+	MiniPermFlags,
 	TextDisplayBuilder,
 	type CommandInteraction,
 	type MiniInteractionCommand,
@@ -14,6 +15,7 @@ const sendCommand: MiniInteractionCommand = {
 	data: new CommandBuilder()
 		.setName("send")
 		.setDescription("Send a message to the ticket system")
+		.setDefaultMemberPermissions(MiniPermFlags.ManageThreads)
 		.setContexts([CommandContext.Guild, CommandContext.Bot])
 		.setIntegrationTypes([
 			IntegrationType.GuildInstall,
