@@ -46,7 +46,9 @@ const sendCommand: MiniInteractionCommand = {
 		const content = options.getString("content")!;
 
 		try {
-			const isDM = !guild;
+			// Robust check: if there's no guild identity, it's definitely a DM.
+			// For User Install apps, guild_id is provided even if the bot isn't in the guild.
+			const isDM = !interaction.guild_id;
 
 			if (isDM) {
 				let userData;
@@ -108,7 +110,8 @@ const sendCommand: MiniInteractionCommand = {
 				if (!userTicketData || !userTicketData.activeTicketId) {
 					return interaction.reply({
 						content:
-							"<:Oops:1455132060044759092> You don't have an active ticket. Use </create:1453302198086664249> command in a server first.",
+							"<:Oops:1455132060044759092> **You don't have an active ticket.**\n\nIf you need assistance, please use </create:1453302198086664249> in a mutual server first.\n\n-# If you are staff, please use this command inside a ticket thread.",
+						flags: [InteractionReplyFlags.Ephemeral],
 					});
 				}
 

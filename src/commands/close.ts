@@ -24,7 +24,7 @@ const closeCommand: MiniInteractionCommand = {
 	handler: async (interaction: CommandInteraction) => {
 		const user = interaction.user ?? interaction.member?.user;
 		const channel = interaction.channel;
-		const isDM = !interaction.guild;
+		const isDM = !interaction.guild_id;
 
 		if (!user) {
 			return interaction.reply({
@@ -33,34 +33,34 @@ const closeCommand: MiniInteractionCommand = {
 			});
 		}
 
-		// Check for close cooldown (30 minutes)
-		const cooldownKey = `cooldown:close:${user.id}`;
-		try {
-			const cooldownData = await db.get(cooldownKey);
-			const now = Date.now();
-
-			if (cooldownData && (cooldownData as any).expiresAt > now) {
-				const timestamp = Math.floor(
-					(cooldownData as any).expiresAt / 1000,
-				);
-
-				return interaction.reply({
-					content: `<:Oops:1455132060044759092> **You're on cooldown!**\n\nYou closed a ticket too quickly. Please wait before closing another ticket.\n\n-# <:timeout:1455604328835449109> **Time remaining:** <t:${timestamp}:R>`,
-					flags: [InteractionReplyFlags.Ephemeral],
-				});
-			}
-		} catch (cooldownError) {
-			console.error("Error checking cooldown:", cooldownError);
-			// Continue with close operation if cooldown check fails
-		}
-
 		if (isDM) {
+			// Check for close cooldown (30 minutes) - only for users in DMs
+			const cooldownKey = `cooldown:close:${user.id}`;
+			try {
+				const cooldownData = await db.get(cooldownKey);
+				const now = Date.now();
+
+				if (cooldownData && (cooldownData as any).expiresAt > now) {
+					const timestamp = Math.floor(
+						(cooldownData as any).expiresAt / 1000,
+					);
+
+					return interaction.reply({
+						content: `<:Oops:1455132060044759092> **You're on cooldown!**\n\nYou closed a ticket too quickly. Please wait before closing another ticket.\n\n-# <:timeout:1455604328835449109> **Time remaining:** <t:${timestamp}:R>`,
+						flags: [InteractionReplyFlags.Ephemeral],
+					});
+				}
+			} catch (cooldownError) {
+				console.error("Error checking cooldown:", cooldownError);
+				// Continue with close operation if cooldown check fails
+			}
+
 			try {
 				const userTicketData = await db.get(`user:${user.id}`);
 				if (!userTicketData || !userTicketData.activeTicketId) {
 					return interaction.reply({
 						content:
-							"<:Oops:1455132060044759092> You don't have an active ticket to close.",
+							"<:Oops:1455132060044759092> **You don't have an active ticket to close.**\n\n- If you are a staff member, please use this command inside the ticket thread you wish to close.\n- If you are a user, you must have an active ticketmail session to close it via DM.",
 						flags: [InteractionReplyFlags.Ephemeral],
 					});
 				}

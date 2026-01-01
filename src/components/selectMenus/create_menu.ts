@@ -215,11 +215,14 @@ export const createMenuHandler: MiniInteractionComponent = {
 				});
 
 				const existingUserData = await db.get(`user:${user.id}`);
-				await db.set(`user:${user.id}`, {
-					...existingUserData,
+				const updatedUserData = {
+					...(existingUserData || {}),
 					activeTicketId: ticketId,
 					guildId,
-				});
+				};
+				delete (updatedUserData as any).createdAt;
+				delete (updatedUserData as any).updatedAt;
+				await db.set(`user:${user.id}`, updatedUserData);
 
 				// Update Linked Roles metadata for thread creation count
 				try {
