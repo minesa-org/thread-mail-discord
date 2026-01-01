@@ -79,7 +79,9 @@ export default mini.discordOAuthCallback({
 				);
 				if (metadataResponse.ok) {
 					const metadata = await metadataResponse.json();
-					currentCount = metadata.metadata?.threads_created || 0;
+					currentCount = Number(
+						metadata.metadata?.threads_created || 0,
+					);
 				}
 			} catch (fetchError) {
 				console.error("Error fetching current metadata:", fetchError);
