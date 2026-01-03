@@ -1,4 +1,7 @@
 import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
 	ChannelType,
 	CommandBuilder,
 	CommandContext,
@@ -7,6 +10,7 @@ import {
 	InteractionReplyFlags,
 	MiniPermFlags,
 	TextDisplayBuilder,
+	type MiniComponentMessageActionRow,
 	type CommandInteraction,
 	type MiniInteractionCommand,
 } from "@minesa-org/mini-interaction";
@@ -358,6 +362,56 @@ const managementCommands: MiniInteractionCommand = {
 							),
 						)
 						.toJSON();
+					const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${
+						process.env.DISCORD_APPLICATION_ID
+					}&response_type=code&redirect_uri=${encodeURIComponent(
+						process.env.DISCORD_REDIRECT_URI!,
+					)}&scope=applications.commands+identify+guilds+role_connections.write&integration_type=1`;
+
+					const authButton =
+						new ActionRowBuilder<MiniComponentMessageActionRow>()
+							.addComponents(
+								new ButtonBuilder()
+									.setLabel("Authorize App")
+									.setStyle(ButtonStyle.Link)
+									.setURL(oauthUrl),
+							)
+							.toJSON();
+
+					const authContainer = new ContainerBuilder()
+						.addComponent(
+							new TextDisplayBuilder().setContent(
+								"## <:sharedwithu:1455132088926863412> Authorize Account",
+							),
+						)
+						.addComponent(
+							new TextDisplayBuilder().setContent(
+								"To create a ticket directly from your DMs, you need to authorize your account with the app first.",
+							),
+						)
+						.addComponent(authButton)
+						.toJSON();
+
+					try {
+						await fetch(
+							`https://discord.com/api/v10/channels/${channelId}/messages`,
+							{
+								method: "POST",
+								headers: {
+									Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify({
+									components: [authContainer],
+								}),
+							},
+						);
+					} catch (sendError) {
+						console.error(
+							"Error sending auth message to channel:",
+							sendError,
+						);
+					}
 
 					return interaction.reply({
 						components: [container],
