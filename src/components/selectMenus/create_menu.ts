@@ -142,7 +142,7 @@ export const createMenuHandler: MiniInteractionComponent = {
 										},
 										{
 											type: 10,
-											content: `-# Please assist this user with their inquiry <:reply:1455132061441593579>`,
+											content: `-# Please assist this user with their inquiry using </send:1453677212988608563> command <:reply:1455132061441593579>`,
 										},
 									],
 								},
