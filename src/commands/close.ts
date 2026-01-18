@@ -128,7 +128,7 @@ const closeCommand: MiniInteractionCommand = {
 								"Content-Type": "application/json",
 							},
 							body: JSON.stringify({
-								content: `## <:thread_archive_server:1455132087496741000> Ticket Closed\n\n**User:** ${ticketData.username}\n\n-# This ticket has been closed by the user.`,
+								content: `## <:thread_archive_server:1455132087496741000> Ticket Closed\n\n- **User:** ${ticketData.username}\n\n-# This ticket has been closed by the user.`,
 							}),
 						},
 					);
@@ -242,7 +242,7 @@ const closeCommand: MiniInteractionCommand = {
 							"Content-Type": "application/json",
 						},
 						body: JSON.stringify({
-							content: `## <:thread_archive_server:1455132087496741000> Ticket Archived\n\n**User:** ${ticketData.username}\n**Status:** Closed by staff\n\n-# This ticket has been archived by staff.`,
+							content: `## <:thread_archive_server:1455132087496741000> Ticket Archived\n\n- **User:** ${ticketData.username}\n\n-# This ticket has been archived by staff.`,
 						}),
 					},
 				);
